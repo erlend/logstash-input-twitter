@@ -45,8 +45,8 @@ class LogStash::Inputs::Twitter < LogStash::Inputs::Base
   # application.
   config :oauth_token_secret, :validate => :password, :required => true
 
-  # Any keywords to track in the twitter stream
-  config :keywords, :validate => :array, :required => true
+  # Any user IDs to track in the twitter stream
+  config :follow, :validate => :array, :required => true
 
   # Record full tweet object as given to us by the Twitter stream api.
   config :full_tweet, :validate => :boolean, :default => false
@@ -83,9 +83,9 @@ class LogStash::Inputs::Twitter < LogStash::Inputs::Base
 
   public
   def run(queue)
-    @logger.info("Starting twitter tracking", :keywords => @keywords)
+    @logger.info("Starting twitter tracking", :follow => @follow)
     begin
-      @client.filter(:track => @keywords.join(",")) do |tweet|
+      @client.filter(:follow => @follow.join(",")) do |tweet|
         if tweet.is_a?(Twitter::Tweet)
           @logger.debug? && @logger.debug("Got tweet", :user => tweet.user.screen_name, :text => tweet.text)
           if @full_tweet
